@@ -1,0 +1,8 @@
+Different types of middlewares
+
+1. Application level middlewares
+2. Routes-level middlewares
+3. Error-handling middlewares
+4. Built-in middlewares
+5. Third party middlewares
+
