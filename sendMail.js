@@ -2,6 +2,41 @@
 
 const nodemailer = require('nodemailer');
 
+const sendVerificationMail = async (email, token) => {
+    try{
+        let mailTransport = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+            user:`${process.env.EMAIL}`,//Put the email address you want to send the email from that is not a gmail account
+            pass:`${process.env.EMAIL_PASSWORD}`//if you use gmail, you would need to provide a generated password, however,
+             //if you have another account that is not gmail, then you can provide the password
+            }
+        })
+
+    const mailDetails = {
+        from: `${process.env.EMAIL}`,
+        to: `${email}`,
+        subject: "Verify Your Account",
+        html: `<h1>Here is the token to create/validate your account. Please 
+        click the button. 
+        
+        <a class"" href='https://www.yourcareerex.com/create-account/${token}'>Click here to create your account.</a>
+
+        If the button does not work for any reason, please copy and paste the link below into your browser:
+        https://www.yourcareerex.com/create-account/${token}
+
+        ${token}.
+        
+        </h1>`
+    }
+
+    await mailTransport.sendMail(mailDetails)
+
+    }catch(error){
+        console.log(error);
+    }
+}
+
 const sendForgotPasswordMail = async (email, token) => {
     
     try{
@@ -49,6 +84,7 @@ const validEmail = (email) => {
     return re.test(String(email).toLowerCase());
 }
 module.exports ={
+    sendVerificationMail,
     sendForgotPasswordMail,
     validEmail
 }

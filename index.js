@@ -4,7 +4,7 @@ const dotenv = require('dotenv');// this allows us to create a file called .env,
 const bcrypt = require('bcryptjs');// this is used to hash the password before saving it to the database
 const jwt = require("jsonwebtoken")
 const Auth = require('./authModel');
-const {sendForgotPasswordMail, validEmail} = require('./sendMail');
+const {sendVerificationMail, sendForgotPasswordMail, validEmail} = require('./sendMail');
 dotenv.config();// this loads the environment variables from the .env file into process.env
 
 const app = express();
@@ -24,7 +24,7 @@ mongoose.connect(process.env.MONGODB_URL)
 
 app.post("/auth/signup", async (req, res) => {
     
-    try{
+    //try{
         const { email, password, firstName, lastName, state } = req.body;
     if(!email){
         return res.status(400).json({ message: "Email is required" });
@@ -58,15 +58,23 @@ app.post("/auth/signup", async (req, res) => {
     await newUser.save();
 
     //send user an email
+    const accessToken = await jwt.sign(
+        {id: newUser._id, email: newUser.email},
+        `${process.env.ACCESS_TOKEN}`,
+        {expiresIn: "5m"}
+    )
+
+    await sendVerificationMail(email, accessToken)
+    
 
     res.status(201).json({ 
         message: "User created successfully", 
         newUser: { email, firstName, lastName, state}
     });
 
-    }catch(error){
-         res.status(500).json({ message: "Internal server error" });
-    }
+    // }catch(error){
+    //      res.status(500).json({ error });
+    // }
 })
 
 app.post("/auth/login", async (req, res) => {
